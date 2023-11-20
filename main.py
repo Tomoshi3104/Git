@@ -3,12 +3,14 @@ WARNING:
 Different version may result in unexpected behavior.
 ==========
 Python             3.11.1
-BingImageCreator   0.4.4
-PyYAML             6.0.1
 selenium           4.10.0
 requests           2.31.0
+googletrans        4.0.0rc1
+Pillow             10.0.0
+PyMySQL            1.1.0
+webdriver-manager  4.0.0
 
-2023/08/01
+2023/11/21
  """
 
 import os
