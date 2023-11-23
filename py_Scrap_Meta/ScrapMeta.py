@@ -81,6 +81,7 @@ def read_config(ele):
     return
 
 URL = read_config("URL")
+MaxPaging = read_config("MaxPaging")
 
 def scrap_brief():
   large_timer = 60
@@ -99,15 +100,27 @@ def scrap_brief():
     BROWSER.get(URL)
     sleep(3)
 
-    input("press Enter once you are ready to scraping new titles.")
+    #BROWSER.execute_script("document.body.style.zoom='50%'") --> 正しく Title がスクレイピングされないことがあるのでコメントアウト
+    for _ in range(MaxPaging):
+      sleep(10)
+      game_list = BROWSER.find_elements(by=By.CSS_SELECTOR, value="main#mdc-main-content > div > div > div > main > div > div > ul > li._ank3")
 
+      # 画面下部までスクロール
+      game_list[-1].location_once_scrolled_into_view
+      #BROWSER.execute_script("arguments[0].scrollIntoView();", last_game) --> 上記の代替コード
+      
+      progressbar = BROWSER.find_elements(by=By.CSS_SELECTOR, value="#mdc-main-content > div > div > div > main > div > div._anl9 > div > span")
+      if len(progressbar) == 0:
+        print("No more pagination: All game titles have been desplayed!")
+        break
+    sleep(10)
     game_list = BROWSER.find_elements(by=By.CSS_SELECTOR, value="main#mdc-main-content > div > div > div > main > div > div > ul > li._ank3")
+    print(f"Total of game titles on web page: {len(game_list)}")
     values = []
     for game in game_list:
       title = game.find_element(by=By.CSS_SELECTOR, value="div > div > div._anhp")
       href = game.find_element(by=By.CSS_SELECTOR, value="div > a._anj6").get_attribute('href')
       values.append({"title": title.text, "href": href})
-
   return values
 
 def alter_space(string):
@@ -263,8 +276,9 @@ def add_sql(values):
   try:
     connection.ping()
     with connection.cursor() as cursor:
-      sql = "INSERT INTO Extracted_Table (title, href) VALUES (%s, %s);"
+      sql = "INSERT INTO Extracted_Table (title, href, post_bool) VALUES (%s, %s, 0);"
       cursor.executemany(sql, values)
+      print("sql update")
       connection.commit()
 
   finally:
@@ -318,10 +332,13 @@ def select_sql(col_name, val, database):
 def add_new_titles():
   existing_db = get_sql()
   ex_titles = get_element("title", existing_db)
-  
   scrap_db = scrap_brief()
   new_titles = get_target_titles(ex_titles, scrap_db)
-  add_sql(new_titles)
+  if len(new_titles) > 0:
+    add_sql(new_titles)
+    print(f"{len(new_titles)} new title(s) have been added to MySQL database!")
+  else:
+    print("No new titles have been added to MySQL database!")
   return
 
 def get_details():

@@ -1,7 +1,8 @@
 {
-  "checkpoint": 4,
+  "checkpoint": 0,
   "py_Scrap_Meta": {
-    "URL": "https://www.meta.com/ja-jp/experiences/section/391914765228253/"
+    "URL": "https://www.meta.com/ja-jp/experiences/section/391914765228253/",
+    "MaxPaging": 1
   },
   "py_ChatGPT": {
     "SkipAutoLogIn": false,
