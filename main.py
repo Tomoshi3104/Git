@@ -36,7 +36,13 @@ CONFIG_FILE_PATH = os.path.join(ROOT_DIR, CONFIG_DIR, CONFIG_FILE)
 os.makedirs(CONFIG_DIR, exist_ok=True)
 os.makedirs(TMP_DIR, exist_ok=True)
 
-last_endpoint = 3
+last_endpoint = 4
+
+PT_ADD_TITLES = 0
+PT_SCRAP_DETAIL = 1
+PT_CHATGPT = 2
+PT_UPLOAD_IMAGE = 3
+PT_WP_POST = 4
 
 def get_position():
   argparser = ArgumentParser()
@@ -92,48 +98,41 @@ def main():
     print(f"Current checkpoint: {checkpoint}")
     exit()
 
-  if checkpoint <= 0 and args.end >= 0:
-    subprocess.run(["say", "-v", "Daniel", "Scrap Meta.py has begun."])
-    "Notion AI のタスク名、AI記事を取得。タスク名は prompt.txt に保存"
-    ScrapMeta.main()
+  if checkpoint <= PT_ADD_TITLES and args.end >= PT_ADD_TITLES:
+    subprocess.run(["say", "-v", "Daniel", "Scrap Meta.py add new titles has begun."])
+    "Meta Store の各ゲームページからゲームの詳細情報を取得"
+    ScrapMeta.add_new_titles()
     checkpoint = set_checkpoint(checkpoint + 1)
-    print("Reading Database from Notion: Done")
+    print("ScrapMeta.add_new_titles() : Done")
 
-  if checkpoint <= 1 and args.end >= 1:
+  if checkpoint <= PT_SCRAP_DETAIL and args.end >= PT_SCRAP_DETAIL:
+    subprocess.run(["say", "-v", "Daniel", "Scrap Meta.py get details has begun."])
+    "Meta Store の各ゲームページからゲームの詳細情報を取得"
+    ScrapMeta.get_details()
+    checkpoint = set_checkpoint(checkpoint + 1)
+    print("ScrapMeta.get_details() : Done")
+
+  if checkpoint <= PT_CHATGPT and args.end >= PT_CHATGPT:
     subprocess.run(["say", "-v", "Daniel", "Scraping ChatGPT.py has begun."])
     "ChatGPT を利用して自動記事生成"
     ScrapingCGPT.main()
     checkpoint = set_checkpoint(checkpoint + 1)
-    print("Scraping blog sentences from ChatGPT: Done")
+    print("ScrapingCGPT.main(): Done")
 
-  if checkpoint <= 2 and args.end >= 2:
+  if checkpoint <= PT_UPLOAD_IMAGE and args.end >= PT_UPLOAD_IMAGE:
     subprocess.run(["say", "-v", "Daniel", "Upload Image.py has begun."])
     "BingImageCreator を利用して自動画像生成"
     UploadImage.main()
     checkpoint = set_checkpoint(checkpoint + 1)
-    print("Scraping images from BingImageCreator: Done")
+    print("UploadImage.main(): Done")
 
-  if checkpoint <= 3 and args.end >= 3:
+  if checkpoint <= PT_WP_POST and args.end >= PT_WP_POST:
     subprocess.run(["say", "-v", "Daniel", "Post Article.py has begun."])
     "BingImageCreator で取得した画像を縦21:横40の比率にトリミング調整"
     PostArticle.main()
     checkpoint = set_checkpoint(checkpoint + 1)
-    print("Trimming images: Done")
-
-  """ 
-  if checkpoint <= 4 and args.end >= 4:
-    subprocess.run(["say", "-v", "Daniel", "Uploading images to WordPress has begun."])
-    "WordPress に画像を投稿"
-    sleep(3)
-    UploadImage.post_images()
-    print("Uploading images to WordPress: Done")
-
-  if checkpoint <= 5 and args.end >= 5:
-    subprocess.run(["say", "-v", "Daniel", "Posting articles to WordPress has begun."])
-    "WordPress に記事を投稿"
-    PostArticle.post_articles()
-    print("Posting articles to WordPress: Done")
-   """
+    print("PostArticle.main(): Done")
+  
   if checkpoint == last_endpoint:
     set_checkpoint(0)
   subprocess.run(["say", "-v", "Daniel", "Blog Automation Completed."])

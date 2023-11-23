@@ -99,6 +99,8 @@ def scrap_brief():
     BROWSER.get(URL)
     sleep(3)
 
+    input("press Enter once you are ready to scraping new titles.")
+
     game_list = BROWSER.find_elements(by=By.CSS_SELECTOR, value="main#mdc-main-content > div > div > div > main > div > div > ul > li._ank3")
     values = []
     for game in game_list:
